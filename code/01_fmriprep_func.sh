@@ -1,12 +1,12 @@
 #!/bin/bash
-#SBATCH --job-name=fmriprep_anat
+#SBATCH --job-name=fmriprep_func
 #SBATCH --output=logs/%x_%j.out 
 #SBATCH --nodes=1
 #SBATCH --cpus-per-task=40
-#SBATCH --time=24:00:00
+#SBATCH --time=23:00:00
 
 
-SUB_SIZE=5 ## number of subjects to run
+SUB_SIZE=1 ## number of subjects to run
 CORES=40
 export THREADS_PER_COMMAND=2
 
@@ -69,7 +69,7 @@ singularity run --cleanenv \
     --use-aroma \
     --notrack \
     --cifti-output 91k \
-    --anat-only 
+    --use-syn-sdc
 
 exitcode=$?
 
