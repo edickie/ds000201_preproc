@@ -1,7 +1,6 @@
 #!/bin/bash
 #SBATCH --job-name=fmriprep_anat
 #SBATCH --output=logs/%x_%j.out 
-#SBATCH --chdir=${SCRATCH}/ds000201_preproc
 #SBATCH --nodes=1
 #SBATCH --cpus-per-task=40
 #SBATCH --time=24:00:00

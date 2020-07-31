@@ -1,4 +1,5 @@
 # ds000201_preproc
+
 preprocessing and feature extraction for ds0000201
 
 pulling the datalad container into envs to version control content
@@ -74,6 +75,21 @@ python -c "from templateflow.api import get; get(['fsaverage', 'fsLR'])"
 python -c "from templateflow.api import get; get(['OASIS30ANTs'])"
 ```
 
+## submitting the fmriprep_anat step
+
+```sh
+cd $SCRATCH/ds000201_preproc
+git pull
+
+SUB_SIZE=5
+N_SUBJECTS=$(( $( wc -l data/input/bids/participants.tsv | cut -f1 -d' ' ) - 1 ))
+array_job_length=$(echo "$N_SUBJECTS/${SUB_SIZE}" | bc)
+
+echo "number of array is: ${array_job_length}"
+
+sbatch --array=0-${array_job_length} code/00_fmriprep_anat.sh
+
+```
 
 ----
 
