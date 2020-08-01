@@ -78,7 +78,7 @@ exitcode=$?
  #   -B ${LOCAL_FREESURFER_DIR}:/fsdir \
 
 # Output results to a table
-for subject in $SUBJECTS: do
+for subject in $SUBJECTS; do
 echo "sub-$subject   ${SLURM_ARRAY_TASK_ID}    $exitcode" \
       >> ${LOGS_DIR}/${SLURM_JOB_NAME}.${SLURM_ARRAY_JOB_ID}.tsv
 done
