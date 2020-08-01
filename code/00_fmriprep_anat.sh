@@ -57,7 +57,7 @@ export SINGULARITYENV_FS_LICENSE=/home/fmriprep/.freesurfer.txt
 cd ${SCRATCH}/${STUDY}
 
 singularity run --cleanenv \
-    -B $HOME:/home/fmriprep --home /home/fmriprep \
+    -B ${SCRATCH}/fmriprep_home:/home/fmriprep --home /home/fmriprep \
     -B ${WORK_DIR}:/work \
     ${SING_CONTAINER} \
     data/input/bids data/derived participant \
