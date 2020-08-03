@@ -136,6 +136,53 @@ echo "number of array is: ${array_job_length}"
 sbatch --array=0-${array_job_length} $SCRATCH/ds000201_preproc/code/01_fmriprep_func.sh
 ```
 
+Update - when looking at the QA pages - the fieldmap correction runs look worse than the syth corrected runs - so we will rerun everything with the --ignore-fieldmap flag.. urg
+
+```sh
+## go the repo and pull new changes
+cd $SCRATCH/ds000201_preproc
+git pull
+
+## figuring out appropriate array-job size
+SUB_SIZE=1 # for func the sub size is moving to 1 participant because there are two runs and 8 tasks per run..
+N_SUBJECTS=$(( $( wc -l data/input/bids/participants.tsv | cut -f1 -d' ' ) - 1 ))
+array_job_length=$(echo "$N_SUBJECTS/${SUB_SIZE}" | bc)
+echo "number of array is: ${array_job_length}"
+
+## submit the array-job
+sbatch --array=0-${array_job_length} $SCRATCH/ds000201_preproc/code/01_fmriprep_func_allsynthSDC.sh
+```
+
+### cp all the QA files into another folder to move them locally..
+
+From the exit codes - only three subjects report a non-zero exit status
+
+sub-9078 - acutally there is no functional data in the input folders - so this person we will just exclude..
+
+sub-9070   57    1 - weird - just no funcitonal processing?
+sub-9078   65    1 - weird - just no functional processing? - the scans are missing from the folder?
+sub-9100   85    1 - lost connection with the burst buffer? - just re-submit?
+
+```sh
+QA_dir=${SCRATCH}/ds000201_QA
+FMRIPREP_dir=${SCRATCH}/ds000201_preproc/data/derived/fmriprep
+
+mkdir -p ${QA_dir}
+
+subjects=`cd ${FMRIPREP_dir}; ls -1d sub-* | grep -v html`
+
+cd ${SCRATCH}
+
+for subject in ${subjects}; do
+ cp ${FMRIPREP_dir}/${subject}.html ${QA_dir}
+ mkdir -p ${QA_dir}/${subject}
+ rsync -av ${FMRIPREP_dir}/${subject}/figures ${QA_dir}/${subject}
+done
+
+
+```
+
+
 ----
 
 We wish this would work - but it did not.
