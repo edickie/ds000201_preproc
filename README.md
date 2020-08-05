@@ -153,6 +153,19 @@ echo "number of array is: ${array_job_length}"
 sbatch --array=0-${array_job_length} $SCRATCH/ds000201_preproc/code/01_fmriprep_func_allsynthSDC.sh
 ```
 
+## transfering data back from SciNet to the SCC..
+
+```sh
+ssh nia-dm2
+screen
+rsync -av ${SCRATCH}/ds000201_QA_sdc.zip edickie@192.197.205.74:/external/rprshnas01/netdata_kcni/edlab/
+rsync -av ${SCRATCH}/ds000201_QA_sdc.zip edickie@192.197.205.74:/external/rprshnas01/tigrlab/scratch/edickie/
+
+
+rsync -av $SCRATCH/ds000201_preproc/data/derived/fmriprep edickie@192.197.205.74:/external/rprshnas01/tigrlab/scratch/edickie/tmp_sleep_proj/
+
+```
+
 ### cp all the QA files into another folder to move them locally..
 
 From the exit codes - only three subjects report a non-zero exit status
@@ -181,6 +194,63 @@ done
 
 
 ```
+
+Update - these QA images can be viewed from jupyter hub but only using a firefox browser! (Also make sure to add a symplink from your home to the drive where the fmriprep outputs are so that you can view images via the jupyter hub).
+
+However it might be a alot easier to go through everything quickly if the desc-sdc_bold QA images (the most important one to look at) are all in one local folder - so I will write a script to do that..
+
+```sh
+QA_dir=${SCRATCH}/ds000201_QA_sdc
+FMRIPREP_dir=${SCRATCH}/ds000201_preproc/data/derived/fmriprep
+
+mkdir -p ${QA_dir}
+
+subjects=`cd ${FMRIPREP_dir}; ls -1d sub-* | grep -v html`
+
+cd ${SCRATCH}
+
+rsync -av ${FMRIPREP_dir}/*/figures/*_desc-sdc_bold.svg ${QA_dir}/
+
+```
+
+## QA Notes from visual inspection
+
+**Major** issue, it is clear that:
+
+- the arrows, faces, and hands tasks used different aquisition paremeters than rest and sleepyness
+  - the arrows faces and hands tasks do not a full brain coverage - they are cases were both the top and bottom/cerebellum of the brain and omitted.
+  - the rest and sleepyness runs appear to have full brain coverage for the most part
+- one subject (the last one) need to be rerun
+- registration for sub-9038 (only one of the sessions) is very bad (exclude)
+- sub-9094 ses-2 anatomical looks odd sometimes.
+
+
+---
+
+## Appendix - trying to troubleshoot the weird hanging issue
+
+For most fmriprep runs - when I check the resource usage they would hang at full RAM and no CPU usage for hours - and then something happens and they all continue to run normally - 
+
+A couple participants completely time out in this state..
+
+for the fieldmap run - it was 3837049_86 - or sub-9100 - insterestingly - these job was submitted twice - due to an array indexing error..
+
+For many of the most recent runs - the hanging processes all finished between 1-2am - this seems to correspond to the writing of the config-*.toml to the workdir..
+
+- things we could try..
+  - one would be to not share the home - mount templateflow separate?
+  - another would be to make sure to state explicitly the freesurfer anat derivatives..
+  - mount different $BBUFFER for each process?
+
+Mapping the array id to the subject id..
+
+```sh
+
+```
+
+
+
+---
 
 
 ----
